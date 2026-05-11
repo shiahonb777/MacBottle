@@ -10,8 +10,14 @@ on:
       - '**/*.md'
       - 'docs/**'
       - '.github/ISSUE_TEMPLATE/**'
+      - 'WhiskyKit/Sources/WhiskyKit/Recipes/_index.json'
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - 'WhiskyKit/Sources/WhiskyKit/Recipes/_index.json'
   workflow_dispatch:
 
 jobs:

@@ -38,34 +38,52 @@ public final class RecipeStore: @unchecked Sendable {
     /// The process-wide store, bound to `WhiskyKit`'s resource bundle.
     /// Tests should construct their own `RecipeStore(bundle:)` for hermetic
     /// fixtures instead of mutating this instance.
-    public static let shared = RecipeStore(bundle: .module)
+    public static let shared = RecipeStore(bundle: .module, remoteCache: .default)
 
     private let bundle: Bundle
+    private let remoteCache: RecipeCache?
     private let lock = NSLock()
     private var cache: [String: Recipe]?
 
-    /// Construct a store backed by a specific bundle.
+    /// Construct a store backed by a specific bundle and, optionally, a
+    /// remote-recipe cache. When a cache is supplied, recipes fetched
+    /// from the upstream repository are merged on top of the bundled set
+    /// at read time; cache entries win on conflict because they are the
+    /// more recent source of truth.
     ///
     /// `Bundle.module` is internal to the package, so callers outside
     /// `WhiskyKit` (the app target, tests) must pass `.module` from within
     /// their own module or use `RecipeStore.shared`.
-    public init(bundle: Bundle) {
+    public init(bundle: Bundle, remoteCache: RecipeCache? = nil) {
         self.bundle = bundle
+        self.remoteCache = remoteCache
     }
 
-    /// Returns every recipe shipped with the current build, keyed by `id`.
+    /// Returns every recipe available to the app, keyed by `id`.
+    ///
+    /// Merges two sources:
+    ///
+    /// 1. Recipes bundled with the app build (`Bundle.module`'s
+    ///    `Recipes/` resource directory). Always present, never changes
+    ///    at runtime. Acts as an offline baseline.
+    /// 2. Recipes previously accepted from the upstream repository and
+    ///    stored under `RecipeCache.default`. When a recipe exists in
+    ///    both sources, the cache wins because it is the user's freshly
+    ///    accepted copy.
     ///
     /// Missing `Recipes/` directory is treated as "no recipes shipped" and
-    /// returns an empty dictionary rather than throwing. This keeps the
-    /// app usable even if the package resources have not been processed yet
-    /// (e.g. fresh checkout before first build).
+    /// returns the cache-only set (which may be empty on first launch).
     public func loadAll() -> [String: Recipe] {
         lock.lock()
         defer { lock.unlock() }
         if let cached = cache { return cached }
-        let fresh = Self.scan(bundle: bundle)
-        cache = fresh
-        return fresh
+
+        var merged = Self.scan(bundle: bundle)
+        if let remote = remoteCache?.loadAll(), !remote.isEmpty {
+            merged.merge(remote, uniquingKeysWith: { _, remoteWins in remoteWins })
+        }
+        cache = merged
+        return merged
     }
 
     /// Drop the in-memory cache. Intended for tests only; the shipped app
@@ -93,6 +111,9 @@ public final class RecipeStore: @unchecked Sendable {
 
         while let url = enumerator?.nextObject() as? URL {
             guard url.pathExtension == "json" else { continue }
+            // Skip the generated manifest; only recipe payloads belong
+            // in the scan.
+            guard url.lastPathComponent != "_index.json" else { continue }
             do {
                 let data = try Data(contentsOf: url)
                 let recipe = try decoder.decode(Recipe.self, from: data)

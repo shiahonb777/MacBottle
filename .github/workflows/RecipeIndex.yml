@@ -1,0 +1,45 @@
+name: RecipeIndex
+
+concurrency:
+  # Only one regeneration in flight per branch. A queued run cancels the
+  # one in progress since the newer commit has the authoritative state.
+  group: recipe-index-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'WhiskyKit/Sources/WhiskyKit/Recipes/**'
+      - 'scripts/generate-recipe-index.swift'
+      - '.github/workflows/RecipeIndex.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    name: Regenerate _index.json
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Need a token with write access for the commit-back step.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate index
+        run: swift scripts/generate-recipe-index.swift
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet -- WhiskyKit/Sources/WhiskyKit/Recipes/_index.json; then
+            echo "Index unchanged, skipping commit."
+            exit 0
+          fi
+          git config user.name "macbottle-bot"
+          git config user.email "macbottle-bot@users.noreply.github.com"
+          git add WhiskyKit/Sources/WhiskyKit/Recipes/_index.json
+          git commit -m "chore(recipes): regenerate _index.json [skip ci]"
+          git push
