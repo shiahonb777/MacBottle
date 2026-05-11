@@ -26,6 +26,7 @@ struct ProgramView: View {
     @State var cachedIconImage: Image?
     @AppStorage("configSectionExapnded") private var configSectionExpanded: Bool = true
     @AppStorage("envArgsSectionExpanded") private var envArgsSectionExpanded: Bool = true
+    @AppStorage("recipeSectionExpanded") private var recipeSectionExpanded: Bool = true
 
     var body: some View {
         Form {
@@ -46,6 +47,7 @@ struct ProgramView: View {
                         .labelsHidden()
                 }
             }
+            RecipeSection(program: program, isExpanded: $recipeSectionExpanded)
             EnvironmentArgView(program: program, isExpanded: $envArgsSectionExpanded)
         }
         .bottomBar {
@@ -110,6 +112,7 @@ struct ProgramView: View {
         .formStyle(.grouped)
         .animation(.whiskyDefault, value: configSectionExpanded)
         .animation(.whiskyDefault, value: envArgsSectionExpanded)
+        .animation(.whiskyDefault, value: recipeSectionExpanded)
         .task {
             if let fetchedImage = program.peFile?.bestIcon() { self.cachedIconImage = Image(nsImage: fetchedImage) }
         }
