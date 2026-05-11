@@ -1,20 +1,29 @@
 name: SwiftLint
 
 concurrency:
-  group: pr-checks-${{ github.event.number }}
+  group: swiftlint-${{ github.ref }}
   cancel-in-progress: true
 
 on:
   pull_request:
+    paths:
+      - '**/*.swift'
+      - '.swiftlint.yml'
+      - '.github/workflows/SwiftLint.yml'
   push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   SwiftLint:
-    runs-on: ubuntu-latest
+    # Run on macOS so the lint environment matches the one developers see
+    # locally when they build in Xcode.
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@v3
-      - name: SwiftLint
-        uses: norio-nomura/action-swiftlint@3.2.1
-        with:
-          args: --strict
+      - uses: actions/checkout@v4
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Run SwiftLint (strict)
+        run: swiftlint lint --strict --reporter github-actions-logging

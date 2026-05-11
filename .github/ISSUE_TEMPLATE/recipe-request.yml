@@ -1,0 +1,67 @@
+name: Recipe Request
+description: Ask for a recipe covering a specific Windows game.
+title: "Recipe request: <game title>"
+labels: ["recipe-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to request a recipe for a game that does not yet
+        ship with MacBottle. If you have already gotten the game to run
+        yourself, please open a PR instead (see the PR template).
+
+  - type: input
+    id: game
+    attributes:
+      label: Game title
+      description: Canonical title as it appears on the store page.
+      placeholder: Black Myth Wukong
+    validations:
+      required: true
+
+  - type: input
+    id: platform-id
+    attributes:
+      label: Platform id
+      description: Steam AppID, GOG product id, or a stable slug for retail installers.
+      placeholder: steam.2050650
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Have you tried running it in MacBottle yourself?
+      options:
+        - "Not yet"
+        - "Yes, it launched but had issues"
+        - "Yes, it crashes or refuses to launch"
+    validations:
+      required: true
+
+  - type: textarea
+    id: observations
+    attributes:
+      label: What happens when you launch?
+      description: Anything you already know — error messages, log excerpts, in-game behaviour.
+      render: bash
+
+  - type: input
+    id: chip
+    attributes:
+      label: Apple Silicon chip
+      placeholder: M4 Pro
+
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "15.1"
+
+  - type: checkboxes
+    attributes:
+      label: Issue Language
+      description: Issues must be in plain English so all maintainers can read them.
+      options:
+        - label: My issue is written in English
+          required: true

@@ -1,0 +1,55 @@
+name: Build
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: xcodebuild Debug
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app || true
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Build app (unsigned)
+        run: |
+          xcodebuild \
+            -project Whisky.xcodeproj \
+            -scheme Whisky \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+  test:
+    name: WhiskyKit tests
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app || true
+
+      - name: Run unit tests
+        working-directory: WhiskyKit
+        run: swift test

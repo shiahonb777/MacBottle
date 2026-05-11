@@ -1,57 +1,74 @@
 name: Bug Report
-description: Report a bug.
+description: Report a bug in MacBottle itself (not a specific game compatibility issue).
 type: "Bug"
+labels: ["bug"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        If a specific game fails to run, use the **Recipe Request** template
+        instead. Use this template only for bugs in MacBottle's UI, bottle
+        management, or core functionality.
+
   - type: textarea
     id: description
     attributes:
       label: Description
-      description: Please provide a description of the bug.
+      description: Clear description of the bug.
     validations:
       required: true
+
   - type: textarea
     id: reproduce
     attributes:
       label: Steps to reproduce
-      description: Please provide detailed step-by-step instructions on how to reproduce this issue.
+      description: Numbered, deterministic steps that reliably trigger the bug.
     validations:
       required: true
+
   - type: textarea
     id: expected-behaviour
     attributes:
       label: Expected behaviour
-      description: Please provide a clear a detailed description of what you expected to happen.
     validations:
       required: true
+
   - type: textarea
     id: logs
     attributes:
       label: Logs
-      description: Please provide the logs from the launched Wine process. These can be found by pressing `CMD + L` in Whisky.
+      description: MacBottle log excerpts if relevant. Redact personal paths.
       render: bash
-    validations:
-      required: true
-  - type: dropdown
-    id: whisky-version
+
+  - type: input
+    id: macbottle-version
     attributes:
-      label: What version of Whisky are you using?
-      options:
-        - "2.3.2"
-        - "<2.3.2"
+      label: MacBottle version
+      description: Shown in About > MacBottle.
+      placeholder: "0.2.0"
     validations:
       required: true
-  - type: dropdown
-    id: mac-version
+
+  - type: input
+    id: macos-version
     attributes:
-      label: What version of macOS are you using?
-      options:
-        - "Sonoma (macOS 14)"
+      label: macOS version
+      placeholder: "15.1"
     validations:
       required: true
+
+  - type: input
+    id: chip
+    attributes:
+      label: Apple Silicon chip
+      placeholder: M4 Pro
+    validations:
+      required: true
+
   - type: checkboxes
     attributes:
       label: Issue Language
-      description: All issues must be written in clear plain English so that all devs are able to read them.
+      description: Issues must be in plain English so all maintainers can read them.
       options:
-        - label: Yes my issue is written in English
+        - label: My issue is written in English
           required: true

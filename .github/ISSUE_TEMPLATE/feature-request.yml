@@ -1,32 +1,42 @@
 name: Feature Request
-description: Request a new feature.
+description: Propose a new feature for MacBottle.
 type: "Enhancement"
+labels: ["enhancement"]
 body:
-  - type: textarea
-    id: related-to-problem
+  - type: markdown
     attributes:
-      label: Is your feature request related to a problem?
-      description: A clear and concise description of what the problem is.
+      value: |
+        Feature requests that fit MacBottle's scope (making Windows games
+        runnable on Apple Silicon) are welcome. Out-of-scope requests —
+        bundled game stores, cloud gaming, anti-cheat workarounds, mobile
+        ports — will be closed with a pointer to `PROJECT_PLAN.md`.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem does this feature solve?
     validations:
       required: true
+
   - type: textarea
     id: solution
     attributes:
-      label: Describe the solution you'd like
-      description: A clear and concise description of what you're suggesting.
+      label: Proposed solution
+      description: How should MacBottle solve it? Concrete UI / API sketches encouraged.
     validations:
       required: true
+
   - type: textarea
-    id: extra-info
+    id: alternatives
     attributes:
-      label: Anything else?
-      description: Upload any relevant images, links, screenshots that might help realise your suggestion.
-    validations:
-      required: true
+      label: Alternatives considered
+      description: Other approaches you rejected, and why.
+
   - type: checkboxes
     attributes:
       label: Issue Language
-      description: All issues must be written in clear plain English so that all devs are able to read them.
+      description: Issues must be in plain English so all maintainers can read them.
       options:
-        - label: Yes my issue is written in English
+        - label: My issue is written in English
           required: true

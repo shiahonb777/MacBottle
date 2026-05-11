@@ -1,0 +1,36 @@
+name: RecipeLint
+
+concurrency:
+  group: recipelint-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    paths:
+      - 'WhiskyKit/Sources/WhiskyKit/Recipes/**'
+      - 'WhiskyKit/Sources/WhiskyKit/Recipe/**'
+      - 'WhiskyKit/Tests/WhiskyKitTests/RecipeTests.swift'
+      - '.github/workflows/RecipeLint.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  RecipeLint:
+    # Recipes are validated by decoding every JSON file through the real
+    # Swift `Recipe` type, which is the canonical schema. Running on macOS
+    # because WhiskyKit requires macOS 14.0 as a platform target.
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app || true
+
+      - name: Build WhiskyKit
+        working-directory: WhiskyKit
+        run: swift build
+
+      - name: Run Recipe tests
+        working-directory: WhiskyKit
+        run: swift test --filter RecipeTests
