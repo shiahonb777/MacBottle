@@ -24,9 +24,10 @@ changes. The visible differences are:
 ├── WhiskyKit/               Core library consumed by app and CLI
 │   ├── Recipe/              MacBottle-only: recipe types, loader, applier
 │   ├── Recipes/             MacBottle-only: shipped recipe JSON files
+│   ├── WineEngine/          MacBottle-only: WineEngine protocol, CrossOverEngine, registry
 │   ├── Whisky/              Bottle / Program / BottleSettings
-│   ├── Wine/                Wine command invocation
-│   ├── WhiskyWine/          CrossOver-based Wine installer
+│   ├── Wine/                Wine command invocation (uses WineEngine)
+│   ├── WhiskyWine/          Legacy shim. Forwards to WineEngineRegistry.
 │   ├── PE/                  Windows PE file parser
 │   └── Extensions/          Foundation extensions
 ├── WhiskyCmd/               CLI companion
@@ -92,12 +93,32 @@ Unit tests live under `WhiskyKit/Tests/WhiskyKitTests/`. MacBottle-added
 tests use the `Recipe*` prefix. `RecipeApplier` should have 100% line
 coverage because every game launch goes through it.
 
-## Continuing beyond v0.2
+## Wine engine abstraction
 
-- v0.3 introduces `.github/workflows/recipe-lint.yml`, which validates
-  every file in `WhiskyKit/Sources/WhiskyKit/Recipes/` against
-  `docs/recipe-v1.json` on every PR.
-- v0.4 introduces the Wine engine abstraction under `WhiskyKit/Wine/`,
-  allowing the app to ship with either the inherited CrossOver build or a
-  pure upstream Wine + GPTK2 combination. The Recipe schema will grow a
-  `min_wine` field when that lands.
+The `WineEngine` protocol under `WhiskyKit/Sources/WhiskyKit/WineEngine/`
+isolates everything about "which Wine build this install uses" into a
+single type. The reason to have this layer even with only one concrete
+implementation (`CrossOverEngine`) is that:
+
+- It turns a future engine swap into a one-line change
+  (`WineEngineRegistry.shared.setCurrent(...)`) rather than a repo-wide
+  find-and-replace.
+- Tests substitute a `FakeEngine` pointing at the system temp directory,
+  which makes it safe to exercise the engine-dependent paths without
+  touching the user's real install.
+- It separates the GPL-clean, MacBottle-authored interface from the
+  CrossOver-derived binary distribution, which is useful if the project
+  ever ships a pure upstream Wine variant with different licensing.
+
+`WhiskyWineInstaller` is preserved as a thin shim forwarding to
+`WineEngineRegistry.shared.current`, so every existing call site keeps
+working. New code should call the registry directly.
+
+## Continuing beyond v0.4
+
+- v0.5 introduces a user-facing engine selector once a second concrete
+  engine (pure upstream Wine) ships. The Recipe schema will grow a
+  `min_wine` field at that point.
+- The CI RecipeLint workflow already validates the entire `Recipes/`
+  tree through the real `Recipe` Swift type, so schema evolution only
+  requires editing `Recipe.swift` and migrating existing recipes.

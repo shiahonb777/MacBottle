@@ -1,0 +1,90 @@
+//
+//  WineEngine.swift
+//  WhiskyKit
+//
+//  This file is part of Whisky.
+//
+//  Whisky is free software: you can redistribute it and/or modify it under the terms
+//  of the GNU General Public License as published by the Free Software Foundation,
+//  either version 3 of the License, or (at your option) any later version.
+//
+//  Whisky is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+//  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//  See the GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License along with Whisky.
+//  If not, see https://www.gnu.org/licenses/.
+//
+
+import Foundation
+import SemanticVersion
+
+// MARK: - WineEngine
+
+/// The Wine flavour that MacBottle uses at runtime.
+///
+/// Different flavours (CrossOver-derived, pure upstream Wine, Apple GPTK)
+/// differ in where their binaries live on disk, how they are installed or
+/// updated, and what licence terms apply to redistributing them. The
+/// `WineEngine` protocol captures only the minimum surface the rest of
+/// MacBottle needs; concrete engines can add their own capabilities
+/// without leaking into callers.
+///
+/// Engines are intentionally stateless from the app's point of view: all
+/// state (installed version, disk paths) is computed from the engine's
+/// `libraryRoot` on demand. This keeps substitution easy and makes unit
+/// testing trivial — a fake engine pointing at a temp directory is enough.
+public protocol WineEngine: Sendable {
+    /// Stable machine identifier for this engine flavour. Used as a disk
+    /// segment under `Application Support/<bundleID>/Engines/<identifier>/`
+    /// so multiple flavours can coexist without clobbering each other.
+    ///
+    /// Examples: `crossover`, `upstream`, `gptk2`.
+    var identifier: String { get }
+
+    /// Human-readable name shown in the UI.
+    var displayName: String { get }
+
+    /// Where this engine installs its `bin/`, `lib/`, and version file.
+    var libraryRoot: URL { get }
+
+    /// Absolute path to the `wine64` (or equivalent) binary. May point to
+    /// a file that does not yet exist if the engine has not been installed.
+    var wineBinary: URL { get }
+
+    /// Absolute path to the `wineserver` binary.
+    var wineserverBinary: URL { get }
+
+    /// Folder containing DXVK DLLs this engine ships with, or an empty
+    /// folder if this engine does not package DXVK.
+    var dxvkFolder: URL { get }
+
+    /// Whether the engine is installed and usable right now.
+    func isInstalled() -> Bool
+
+    /// Reports the installed version if one can be determined.
+    func installedVersion() -> SemanticVersion?
+
+    /// Install the engine from a tarball URL produced by the engine's
+    /// release channel. The tarball is deleted after successful extraction.
+    func install(from tarball: URL) throws
+
+    /// Remove the engine's installed files from disk. Bottles created
+    /// against the engine are untouched.
+    func uninstall() throws
+
+    /// Check the engine's release feed for a newer version. Returns the
+    /// latest remote version and whether it is strictly newer than the
+    /// local one. Network failures surface as `(false, local ?? 0.0.0)`.
+    func checkForUpdate() async -> (hasUpdate: Bool, remoteVersion: SemanticVersion)
+}
+
+// MARK: - Defaults
+
+public extension WineEngine {
+    /// Convenience that combines `isInstalled` and `installedVersion` in
+    /// the pattern UI setup views use.
+    func installedOrNil() -> SemanticVersion? {
+        isInstalled() ? installedVersion() : nil
+    }
+}

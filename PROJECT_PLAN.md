@@ -45,8 +45,9 @@
 | -- | -- |
 | v0.1 | 品牌切换 + 可编译 .app（沿用 Whisky 的 CrossOver 打包） |
 | v0.2 | Recipe 系统（schema、loader、applier、示例配方） |
-| v0.3 | CI schema-lint + PR 模板 + 完善架构文档 |
-| v0.4 | Wine 引擎抽象层，可切换到纯上游 Wine |
+| v0.3 | CI schema-lint + PR 模板 + 完善架构文档 + Recipe UI |
+| v0.4 | Wine 引擎抽象层，CrossOverEngine 为首个实现 |
+| v0.5 | 用户可切换引擎，第二个实现（纯上游 Wine 或 GPTK2） |
 | v1.0 | 正式发布，GitHub Release，Show HN 一次 |
 
 v1.0 之后：**只合 PR，只做引擎层维护。** 配方由社区贡献者自行添加。

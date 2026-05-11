@@ -19,103 +19,70 @@
 import Foundation
 import SemanticVersion
 
+/// MacBottle: kept as a thin compatibility layer.
+///
+/// The real logic moved to `CrossOverEngine` and the process-wide
+/// `WineEngineRegistry.shared.current`. Existing call sites continue to
+/// reach the right files because every symbol on `WhiskyWineInstaller`
+/// now forwards to the active engine. New code should use
+/// `WineEngineRegistry.shared.current` directly so the chosen Wine flavour
+/// is honoured once multiple engines ship.
 public class WhiskyWineInstaller {
-    /// The Whisky application folder
-    public static let applicationFolder = FileManager.default.urls(
-        for: .applicationSupportDirectory, in: .userDomainMask
-        )[0].appending(path: Bundle.whiskyBundleIdentifier)
+    private static var engine: any WineEngine {
+        WineEngineRegistry.shared.current
+    }
 
-    /// The folder of all the libfrary files
-    public static let libraryFolder = applicationFolder.appending(path: "Libraries")
+    public static var applicationFolder: URL {
+        CrossOverEngine.applicationFolder
+    }
 
-    /// URL to the installed `wine` `bin` directory
-    public static let binFolder: URL = libraryFolder.appending(path: "Wine").appending(path: "bin")
+    public static var libraryFolder: URL {
+        engine.libraryRoot
+    }
+
+    public static var binFolder: URL {
+        // Derive via the engine's `wineBinary` to keep a single source of
+        // truth, even though CrossOverEngine also exposes `binFolder`.
+        engine.wineBinary.deletingLastPathComponent()
+    }
 
     public static func isWhiskyWineInstalled() -> Bool {
-        return whiskyWineVersion() != nil
+        engine.isInstalled()
     }
 
     public static func install(from: URL) {
         do {
-            if !FileManager.default.fileExists(atPath: applicationFolder.path) {
-                try FileManager.default.createDirectory(at: applicationFolder, withIntermediateDirectories: true)
-            } else {
-                // Recreate it
-                try FileManager.default.removeItem(at: applicationFolder)
-                try FileManager.default.createDirectory(at: applicationFolder, withIntermediateDirectories: true)
-            }
-
-            try Tar.untar(tarBall: from, toURL: applicationFolder)
-            try FileManager.default.removeItem(at: from)
+            try engine.install(from: from)
         } catch {
-            print("Failed to install WhiskyWine: \(error)")
+            print("Failed to install Wine engine: \(error)")
         }
     }
 
     public static func uninstall() {
         do {
-            try FileManager.default.removeItem(at: libraryFolder)
+            try engine.uninstall()
         } catch {
-            print("Failed to uninstall WhiskyWine: \(error)")
+            print("Failed to uninstall Wine engine: \(error)")
         }
     }
 
     public static func shouldUpdateWhiskyWine() async -> (Bool, SemanticVersion) {
-        let versionPlistURL = "https://data.getwhisky.app/Wine/WhiskyWineVersion.plist"
-        let localVersion = whiskyWineVersion()
-
-        var remoteVersion: SemanticVersion?
-
-        if let remoteUrl = URL(string: versionPlistURL) {
-            remoteVersion = await withCheckedContinuation { continuation in
-                URLSession(configuration: .ephemeral).dataTask(with: URLRequest(url: remoteUrl)) { data, _, error in
-                    do {
-                        if error == nil, let data = data {
-                            let decoder = PropertyListDecoder()
-                            let remoteInfo = try decoder.decode(WhiskyWineVersion.self, from: data)
-                            let remoteVersion = remoteInfo.version
-
-                            continuation.resume(returning: remoteVersion)
-                            return
-                        }
-                        if let error = error {
-                            print(error)
-                        }
-                    } catch {
-                        print(error)
-                    }
-
-                    continuation.resume(returning: nil)
-                }.resume()
-            }
-        }
-
-        if let localVersion = localVersion, let remoteVersion = remoteVersion {
-            if localVersion < remoteVersion {
-                return (true, remoteVersion)
-            }
-        }
-
-        return (false, SemanticVersion(0, 0, 0))
+        let result = await engine.checkForUpdate()
+        return (result.hasUpdate, result.remoteVersion)
     }
 
     public static func whiskyWineVersion() -> SemanticVersion? {
-        do {
-            let versionPlist = libraryFolder
-                .appending(path: "WhiskyWineVersion")
-                .appendingPathExtension("plist")
-
-            let decoder = PropertyListDecoder()
-            let data = try Data(contentsOf: versionPlist)
-            let info = try decoder.decode(WhiskyWineVersion.self, from: data)
-            return info.version
-        } catch {
-            print(error)
-            return nil
-        }
+        engine.installedVersion()
     }
 }
 
-struct WhiskyWineVersion: Codable {
-    var version: SemanticVersion = SemanticVersion(1, 0, 0)
+/// Version descriptor written by the Wine packaging pipeline as
+/// `WhiskyWineVersion.plist`. Kept public so `CrossOverEngine` and any
+/// historical callers can decode it.
+public struct WhiskyWineVersion: Codable, Sendable {
+    public var version: SemanticVersion
+
+    public init(version: SemanticVersion = SemanticVersion(1, 0, 0)) {
+        self.version = version
+    }
 }
