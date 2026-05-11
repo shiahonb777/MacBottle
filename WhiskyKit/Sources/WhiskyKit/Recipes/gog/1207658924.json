@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "id": "gog.1207658924",
+  "title": "The Witcher 2: Assassins of Kings",
+  "dx_version": "d3d9",
+  "min_macos": "14.0",
+  "renderer": "d3dmetal",
+  "winetricks": ["vcrun2010"],
+  "env": {
+    "WINEESYNC": "1"
+  },
+  "registry": [],
+  "compatibility": "gold",
+  "notes": "GOG DRM-free installer. Disable ubersampling for best performance on Apple Silicon."
+}

@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "id": "steam.1091500",
+  "title": "Cyberpunk 2077",
+  "dx_version": "d3d12",
+  "min_macos": "14.0",
+  "renderer": "d3dmetal",
+  "winetricks": [],
+  "env": {
+    "WINEESYNC": "1",
+    "DXVK_ASYNC": "0"
+  },
+  "registry": [],
+  "compatibility": "silver",
+  "notes": "Playable on M2 Pro and above. Disable ray tracing and reduce crowd density for stable framerate. Shader compilation during first 10 minutes causes stutter."
+}

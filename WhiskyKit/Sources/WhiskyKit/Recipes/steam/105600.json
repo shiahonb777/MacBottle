@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "id": "steam.105600",
+  "title": "Terraria",
+  "dx_version": "d3d9",
+  "min_macos": "14.0",
+  "renderer": "wined3d",
+  "winetricks": ["dotnet48"],
+  "env": {
+    "WINEESYNC": "1"
+  },
+  "registry": [],
+  "compatibility": "platinum",
+  "notes": "Lightweight 2D title, runs flawlessly. Multiplayer works cross-platform."
+}

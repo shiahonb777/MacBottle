@@ -36,7 +36,16 @@ let package = Package(
     targets: [
         .target(
             name: "WhiskyKit",
-            dependencies: ["SemanticVersion"]
+            dependencies: ["SemanticVersion"],
+            resources: [
+                // MacBottle: ship recipes as bundled resources.
+                // Each file under Recipes/ is a JSON recipe loaded by RecipeStore.
+                .copy("Recipes")
+            ]
+        ),
+        .testTarget(
+            name: "WhiskyKitTests",
+            dependencies: ["WhiskyKit"]
         )
     ],
     swiftLanguageVersions: [.version("6")]

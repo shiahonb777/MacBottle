@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "id": "steam.2050650",
+  "title": "Black Myth: Wukong",
+  "dx_version": "d3d12",
+  "min_macos": "14.0",
+  "renderer": "d3dmetal",
+  "winetricks": [],
+  "env": {
+    "WINEESYNC": "1",
+    "DXVK_ASYNC": "1"
+  },
+  "registry": [],
+  "compatibility": "silver",
+  "notes": "First launch compiles shaders for several minutes; do not close the app. M3 Pro and above required for 30fps at 1080p medium."
+}

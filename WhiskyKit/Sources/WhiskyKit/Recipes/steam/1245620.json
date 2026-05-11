@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "id": "steam.1245620",
+  "title": "Elden Ring",
+  "dx_version": "d3d12",
+  "min_macos": "14.0",
+  "renderer": "d3dmetal",
+  "winetricks": [],
+  "env": {
+    "WINEESYNC": "1"
+  },
+  "registry": [],
+  "compatibility": "gold",
+  "notes": "Runs at 60fps on M3 Pro or better at medium settings. Offline mode is recommended; online play via EAC is not supported on macOS."
+}

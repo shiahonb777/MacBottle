@@ -71,6 +71,26 @@ public struct ProgramSettings: Codable {
     public var environment: [String: String] = [:]
     public var arguments: String = ""
 
+    /// MacBottle: optional recipe id attached to this program. When set and
+    /// the recipe resolves, `RecipeApplier` merges its environment overrides
+    /// on top of `environment` at launch time. Uses `decodeIfPresent` so
+    /// older plists without this field keep working.
+    public var recipeID: String?
+
+    public init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case locale, environment, arguments, recipeID
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.locale = try container.decodeIfPresent(Locales.self, forKey: .locale) ?? .auto
+        self.environment = try container.decodeIfPresent([String: String].self, forKey: .environment) ?? [:]
+        self.arguments = try container.decodeIfPresent(String.self, forKey: .arguments) ?? ""
+        self.recipeID = try container.decodeIfPresent(String.self, forKey: .recipeID)
+    }
+
     static func decode(from settingsURL: URL) throws -> ProgramSettings {
         guard FileManager.default.fileExists(atPath: settingsURL.path(percentEncoded: false)) else {
             let settings = ProgramSettings()

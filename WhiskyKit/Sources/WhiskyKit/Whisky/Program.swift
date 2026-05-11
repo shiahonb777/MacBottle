@@ -85,6 +85,13 @@ public final class Program: ObservableObject, Equatable, Hashable, Identifiable,
         if settings.locale != .auto {
             environment["LC_ALL"] = settings.locale.rawValue
         }
+        // MacBottle: if a recipe is attached to this program, merge its env
+        // overrides on top. Recipe wins on conflict by design — see
+        // docs/ARCHITECTURE.md for the rationale.
+        if let recipeID = settings.recipeID,
+           let recipe = RecipeStore.shared.recipe(id: recipeID) {
+            environment = RecipeApplier.apply(recipe, to: environment)
+        }
         return environment
     }
 

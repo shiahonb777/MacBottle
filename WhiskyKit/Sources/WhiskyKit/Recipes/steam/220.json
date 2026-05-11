@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "id": "steam.220",
+  "title": "Half-Life 2",
+  "dx_version": "d3d9",
+  "min_macos": "14.0",
+  "renderer": "d3dmetal",
+  "winetricks": [],
+  "env": {
+    "WINEESYNC": "1"
+  },
+  "registry": [],
+  "compatibility": "platinum",
+  "notes": "Has a native macOS build on Steam, but the Windows build via MacBottle runs with higher framerates on Apple Silicon."
+}

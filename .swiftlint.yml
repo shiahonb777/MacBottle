@@ -4,6 +4,7 @@ opt_in_rules:
 
 excluded:
   - .build
+  - WhiskyKit/.build
 
 file_header:
     severity: error
@@ -24,3 +25,4 @@ file_header:
                       \/\/  You should have received a copy of the GNU General Public License along with Whisky\.
                       \/\/  If not, see https:\/\/www\.gnu\.org\/licenses\/\.
                       \/\/
+
