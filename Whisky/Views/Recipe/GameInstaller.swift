@@ -211,10 +211,85 @@ final class GameInstaller: ObservableObject {
 
     private func applyRecipeSettings(to bottle: Bottle) async {
         bottle.settings.dxvk = (recipe.renderer == .dxvk)
-        // Recipe env is applied at launch via Program.generateEnvironment
-        // through the recipe binding. We just record the recipe id on
-        // any program the user later pins inside this bottle.
+
+        // Install CJK fonts by symlinking macOS system fonts into the
+        // bottle's Windows/Fonts directory. This avoids the winetricks
+        // Terminal popup and is instant. Without this, any Windows app
+        // that renders CJK text (Steam in Chinese, etc.) shows □□□□.
+        installCJKFonts(in: bottle)
+
         Logger.wineKit.info("GameInstaller: applied recipe \(self.recipe.id) to bottle \(bottle.url.lastPathComponent)")
+    }
+
+    // swiftlint:disable:next function_body_length
+    private func installCJKFonts(in bottle: Bottle) {
+        let fontsDir = bottle.url
+            .appending(path: "drive_c")
+            .appending(path: "windows")
+            .appending(path: "Fonts")
+
+        let fileManager = FileManager.default
+        if !fileManager.fileExists(atPath: fontsDir.path) {
+            try? fileManager.createDirectory(at: fontsDir, withIntermediateDirectories: true)
+        }
+
+        // macOS system fonts that cover CJK glyphs. We symlink rather
+        // than copy to save ~100 MB of disk per bottle.
+        let systemFonts: [(source: String, dest: String)] = [
+            ("/System/Library/Fonts/PingFang.ttc", "pingfang.ttc"),
+            ("/System/Library/Fonts/Hiragino Sans GB.ttc", "hiraginosansgb.ttc"),
+            ("/System/Library/Fonts/STHeiti Light.ttc", "stheitilight.ttc"),
+            ("/System/Library/Fonts/STHeiti Medium.ttc", "stheitimedium.ttc"),
+            ("/Library/Fonts/Arial Unicode.ttf", "arialunicode.ttf")
+        ]
+
+        for font in systemFonts {
+            let dest = fontsDir.appending(path: font.dest)
+            guard !fileManager.fileExists(atPath: dest.path) else { continue }
+            guard fileManager.fileExists(atPath: font.source) else { continue }
+            try? fileManager.createSymbolicLink(
+                at: dest,
+                withDestinationURL: URL(fileURLWithPath: font.source)
+            )
+        }
+
+        // Register fonts in the Wine registry so apps discover them.
+        let regEntries: [(name: String, file: String)] = [
+            ("PingFang SC (TrueType)", "pingfang.ttc"),
+            ("Hiragino Sans GB (TrueType)", "hiraginosansgb.ttc"),
+            ("STHeiti Light (TrueType)", "stheitilight.ttc"),
+            ("STHeiti Medium (TrueType)", "stheitimedium.ttc"),
+            ("Arial Unicode MS (TrueType)", "arialunicode.ttf")
+        ]
+
+        let regPath = bottle.url
+            .appending(path: "drive_c")
+            .appending(path: "windows")
+            .appending(path: "system.reg")
+
+        // Append font registrations to system.reg if not already present.
+        // Wine's registry format is a plain text file; appending entries
+        // under the Fonts key is safe and takes effect on next wine start.
+        guard var regContent = try? String(contentsOf: regPath, encoding: .utf8) else { return }
+        let marker = "[Software\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\\\\Fonts]"
+        guard regContent.contains(marker) else { return }
+
+        var additions = ""
+        for entry in regEntries {
+            let key = "\"\(entry.name)\"=\"\(entry.file)\""
+            if !regContent.contains(entry.name) {
+                additions += "\n\(key)"
+            }
+        }
+
+        if !additions.isEmpty {
+            // Insert after the [Fonts] section header
+            if let range = regContent.range(of: marker) {
+                let lineEnd = regContent[range.upperBound...].firstIndex(of: "\n") ?? regContent.endIndex
+                regContent.insert(contentsOf: additions, at: lineEnd)
+                try? regContent.write(to: regPath, atomically: true, encoding: .utf8)
+            }
+        }
     }
 
     private func waitForBottle(url: URL, timeout: TimeInterval = 30) async -> Bottle? {
