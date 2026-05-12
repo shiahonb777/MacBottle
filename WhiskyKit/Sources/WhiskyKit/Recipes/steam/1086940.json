@@ -6,6 +6,7 @@
   "dx_version": "vulkan",
   "min_macos": "14.0",
   "renderer": "dxvk",
+  "installer": "steam",
   "winetricks": [],
   "env": {
     "WINEESYNC": "1",

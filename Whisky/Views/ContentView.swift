@@ -93,7 +93,14 @@ struct ContentView: View {
                          bottles: bottleVM.bottles)
         }
         .onChange(of: selected) {
-            selectedBottleURL = selected
+            // Library marker is ephemeral; persist only real bottle URLs
+            // so relaunches restore the user's last bottle choice and
+            // fall back to Library when none was open.
+            if selected == Self.libraryMarker {
+                selectedBottleURL = nil
+            } else {
+                selectedBottleURL = selected
+            }
         }
         .handlesExternalEvents(preferring: [], allowing: ["*"])
         .onOpenURL { url in
@@ -103,12 +110,13 @@ struct ContentView: View {
             bottleVM.loadBottles()
             bottlesLoaded = true
 
-            if !bottleVM.bottles.isEmpty || bottleVM.countActive() != 0 {
-                if let bottle = bottleVM.bottles.first(where: { $0.url == selectedBottleURL && $0.isAvailable }) {
-                    selected = bottle.url
-                } else {
-                    selected = bottleVM.bottles[0].url
-                }
+            // MacBottle: default to the Game Library unless the user has
+            // an explicit bottle selection restored from a prior session.
+            if let restored = selectedBottleURL,
+               bottleVM.bottles.contains(where: { $0.url == restored && $0.isAvailable }) {
+                selected = restored
+            } else {
+                selected = Self.libraryMarker
             }
 
             if !WhiskyWineInstaller.isWhiskyWineInstalled() {
@@ -146,7 +154,7 @@ struct ContentView: View {
                     Label("Game Library", systemImage: "square.grid.2x2")
                         .tag(Self.libraryMarker)
                 }
-                Section("容器") {
+                Section("进阶 · 容器") {
                     ForEach(filteredBottles) { bottle in
                         Group {
                             if bottle.inFlight {

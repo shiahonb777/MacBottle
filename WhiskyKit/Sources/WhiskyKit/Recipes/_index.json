@@ -1,113 +1,113 @@
 {
-  "generated_at" : "2026-05-11T17:13:38Z",
+  "generated_at" : "2026-05-12T07:51:07Z",
   "recipes" : [
     {
       "id" : "gog.1207658924",
       "path" : "gog\/1207658924.json",
-      "sha" : "780cb7bd644666c1e5460a1b6b1843e2788e900a",
-      "size" : 493
+      "sha" : "41ff96356d0ceadd791cda46dc7d8c5c962ab488",
+      "size" : 523
     },
     {
       "id" : "steam.105600",
       "path" : "steam\/105600.json",
-      "sha" : "9a5f3798599e12acc67a19047c5b24492fcd28c1",
-      "size" : 425
+      "sha" : "ccf57af26efdd826db00fdb0ec6058dc674db724",
+      "size" : 457
     },
     {
       "id" : "steam.1086940",
       "path" : "steam\/1086940.json",
-      "sha" : "76eefe5888db61f4f687ff0b613ba686c941df66",
-      "size" : 522
+      "sha" : "97f630605dc220ef035267a052bedcd1f6fc7dd2",
+      "size" : 546
     },
     {
       "id" : "steam.1091500",
       "path" : "steam\/1091500.json",
-      "sha" : "62a36ed546add93d44345670de575d17fd3ef3a0",
-      "size" : 529
+      "sha" : "2e0eca731876e4fb81c41a19efa904f02c202902",
+      "size" : 553
     },
     {
       "id" : "steam.1174180",
       "path" : "steam\/1174180.json",
-      "sha" : "14fe16f0a07006857efcd269649c20a039f4c973",
-      "size" : 497
+      "sha" : "4aaa8e589de29a24917eb37f7aa9b689f542ee53",
+      "size" : 521
     },
     {
       "id" : "steam.1245620",
       "path" : "steam\/1245620.json",
-      "sha" : "5a0bd9ac0546b06ff69427a285515f394cb86618",
-      "size" : 474
+      "sha" : "bf519dbca84013d945636cd49cdbf6a3bcc70334",
+      "size" : 498
     },
     {
       "id" : "steam.2050650",
       "path" : "steam\/2050650.json",
-      "sha" : "83d6b7cd799a6304a8bac0371b7b7f88b050802f",
-      "size" : 503
+      "sha" : "0f14429d0d46209d671514e95235402687efa320",
+      "size" : 527
     },
     {
       "id" : "steam.220",
       "path" : "steam\/220.json",
-      "sha" : "7e0f69315be2ac34eadac144f857434943478979",
-      "size" : 457
+      "sha" : "905211af9bf0134b42a395875d6393c70cae5d62",
+      "size" : 481
     },
     {
       "id" : "steam.271590",
       "path" : "steam\/271590.json",
-      "sha" : "309d562c69e19edfc59c45f8c98c7b7f9721ff4c",
-      "size" : 454
+      "sha" : "2755bb7196d543094a593a61c188495ba28289aa",
+      "size" : 478
     },
     {
       "id" : "steam.292030",
       "path" : "steam\/292030.json",
-      "sha" : "4ebe3caf3db4f5343a5c40f79a36488cd21b463d",
-      "size" : 500
+      "sha" : "e4d3e3a40b3ca9a7510df181b2ae08eea408f872",
+      "size" : 524
     },
     {
       "id" : "steam.367520",
       "path" : "steam\/367520.json",
-      "sha" : "cb61d559a3d754a97a41a71597c5221de151ad36",
-      "size" : 418
+      "sha" : "d87c9d1784df864ebbe18cd75f426961faae46c6",
+      "size" : 442
     },
     {
       "id" : "steam.374320",
       "path" : "steam\/374320.json",
-      "sha" : "64b22fc6f2f5b0f72b16d075cfe421e8431e807b",
-      "size" : 442
+      "sha" : "c82f1f12ed7a5b4dda97496c1e9ddd5f894a293d",
+      "size" : 466
     },
     {
       "id" : "steam.413150",
       "path" : "steam\/413150.json",
-      "sha" : "bfe3f149340bab8ed3615d624102490f7e0d9ea0",
-      "size" : 464
+      "sha" : "16ab263f36cdbd80282f153082c4ed991487d950",
+      "size" : 488
     },
     {
       "id" : "steam.489830",
       "path" : "steam\/489830.json",
-      "sha" : "dc80c9fc8813ddf8e3f5072bfb71e4da0bbdc932",
-      "size" : 491
+      "sha" : "09e50e21b412ab6820311acf257e28bd807007b7",
+      "size" : 515
     },
     {
       "id" : "steam.582010",
       "path" : "steam\/582010.json",
-      "sha" : "fe8c19db53aa923c347f628a4c9f9766eca4b688",
-      "size" : 465
+      "sha" : "0ec270863303842f0df33ef7a433c4652ea717ff",
+      "size" : 489
     },
     {
       "id" : "steam.632470",
       "path" : "steam\/632470.json",
-      "sha" : "a5a7f6d818b5a3938c781f601ef2a2c5afd115e3",
-      "size" : 477
+      "sha" : "212b4ec21dbf30c574f2a8748ed5d6d1b3f7b0c1",
+      "size" : 501
     },
     {
       "id" : "steam.782330",
       "path" : "steam\/782330.json",
-      "sha" : "ba562e5eb51aed04430db0bf4c6ce6b2df4447a2",
-      "size" : 437
+      "sha" : "84ec5f5c59bec37ebd3590885afa07b319e3e259",
+      "size" : 461
     },
     {
       "id" : "steam.990080",
       "path" : "steam\/990080.json",
-      "sha" : "a8c69f2a755dc4b3acef171f3a4775e7f469643e",
-      "size" : 494
+      "sha" : "c86bacc70143060da76d9f77a15ad7d824bcaeb9",
+      "size" : 518
     }
   ],
   "schema" : 1

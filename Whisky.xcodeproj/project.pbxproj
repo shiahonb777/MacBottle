@@ -22,6 +22,8 @@
 		ECE00000000000000000004A /* RecipeSyncToolbarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE00000000000000000004B /* RecipeSyncToolbarButton.swift */; };
 		ECE00000000000000000005A /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE00000000000000000005B /* ImageCache.swift */; };
 		ECE00000000000000000006A /* RecipeLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE00000000000000000006B /* RecipeLibraryView.swift */; };
+		ECE00000000000000000007A /* GameInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE00000000000000000007B /* GameInstaller.swift */; };
+		ECE00000000000000000008A /* GameDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE00000000000000000008B /* GameDetailSheet.swift */; };
 		6E182FCA2B0BF64E00AADE81 /* WinetricksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E182FC92B0BF64E00AADE81 /* WinetricksView.swift */; };
 		6E2B25C12B0E20F50084A67A /* PinAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E2B25C02B0E20F50084A67A /* PinAddView.swift */; };
 		6E2FB15E2B589A7800E344C6 /* cabextract in Embed WhiskyCmd */ = {isa = PBXBuildFile; fileRef = 6E2FB15D2B589A7800E344C6 /* cabextract */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -130,6 +132,8 @@
 		ECE00000000000000000004B /* RecipeSyncToolbarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeSyncToolbarButton.swift; sourceTree = "<group>"; };
 		ECE00000000000000000005B /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		ECE00000000000000000006B /* RecipeLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeLibraryView.swift; sourceTree = "<group>"; };
+		ECE00000000000000000007B /* GameInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameInstaller.swift; sourceTree = "<group>"; };
+		ECE00000000000000000008B /* GameDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameDetailSheet.swift; sourceTree = "<group>"; };
 		6E182FC92B0BF64E00AADE81 /* WinetricksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinetricksView.swift; sourceTree = "<group>"; };
 		6E2B25C02B0E20F50084A67A /* PinAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinAddView.swift; sourceTree = "<group>"; };
 		6E2FB15D2B589A7800E344C6 /* cabextract */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = cabextract; sourceTree = "<group>"; };
@@ -357,6 +361,8 @@
 				ECE00000000000000000004B /* RecipeSyncToolbarButton.swift */,
 				ECE00000000000000000005B /* ImageCache.swift */,
 				ECE00000000000000000006B /* RecipeLibraryView.swift */,
+				ECE00000000000000000007B /* GameInstaller.swift */,
+				ECE00000000000000000008B /* GameDetailSheet.swift */,
 			);
 			path = Recipe;
 			sourceTree = "<group>";
@@ -652,6 +658,8 @@
 				ECE00000000000000000004A /* RecipeSyncToolbarButton.swift in Sources */,
 				ECE00000000000000000005A /* ImageCache.swift in Sources */,
 				ECE00000000000000000006A /* RecipeLibraryView.swift in Sources */,
+				ECE00000000000000000007A /* GameInstaller.swift in Sources */,
+				ECE00000000000000000008A /* GameDetailSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

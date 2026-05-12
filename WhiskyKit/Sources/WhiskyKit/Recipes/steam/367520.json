@@ -6,6 +6,7 @@
   "dx_version": "d3d9",
   "min_macos": "14.0",
   "renderer": "wined3d",
+  "installer": "steam",
   "winetricks": [],
   "env": {
     "WINEESYNC": "1"

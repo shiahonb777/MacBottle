@@ -6,7 +6,10 @@
   "dx_version": "d3d9",
   "min_macos": "14.0",
   "renderer": "d3dmetal",
-  "winetricks": ["vcrun2010"],
+  "installer": "gog",
+  "winetricks": [
+    "vcrun2010"
+  ],
   "env": {
     "WINEESYNC": "1"
   },

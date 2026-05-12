@@ -6,7 +6,10 @@
   "dx_version": "d3d9",
   "min_macos": "14.0",
   "renderer": "wined3d",
-  "winetricks": ["dotnet48"],
+  "installer": "steam",
+  "winetricks": [
+    "dotnet48"
+  ],
   "env": {
     "WINEESYNC": "1"
   },

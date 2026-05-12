@@ -31,7 +31,9 @@ import WhiskyKit
 /// sync additions show up immediately.
 struct RecipeLibraryView: View {
     @State private var recipes: [Recipe] = []
+    @State private var installedIDs: Set<String> = []
     @State private var query: String = ""
+    @State private var selectedRecipe: Recipe?
 
     private let columns = [GridItem(.adaptive(minimum: 200, maximum: 260), spacing: 16)]
 
@@ -39,7 +41,15 @@ struct RecipeLibraryView: View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(filtered) { recipe in
-                    RecipeCard(recipe: recipe)
+                    Button {
+                        selectedRecipe = recipe
+                    } label: {
+                        RecipeCard(
+                            recipe: recipe,
+                            installed: installedIDs.contains(recipe.id)
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(16)
@@ -58,6 +68,12 @@ struct RecipeLibraryView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .macbottleRecipesChanged)) { _ in
             reload()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .macbottleInstalledGamesChanged)) { _ in
+            reload()
+        }
+        .sheet(item: $selectedRecipe) { recipe in
+            GameDetailSheet(recipe: recipe)
         }
     }
 
@@ -89,6 +105,7 @@ struct RecipeLibraryView: View {
     private func reload() {
         let all = RecipeStore.shared.loadAll()
         recipes = all.values.sorted { $0.title.lowercased() < $1.title.lowercased() }
+        installedIDs = Set(InstalledGameRegistry.shared.all().map(\.recipeID))
     }
 }
 
@@ -96,39 +113,11 @@ struct RecipeLibraryView: View {
 /// id, and a color-coded compatibility badge.
 private struct RecipeCard: View {
     let recipe: Recipe
+    let installed: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            CachedAsyncImage(
-                url: recipe.iconURL,
-                success: { image in
-                    image.resizable().aspectRatio(contentMode: .fill)
-                },
-                placeholder: {
-                    ZStack {
-                        Rectangle().fill(.quaternary)
-                        ProgressView().controlSize(.small)
-                    }
-                },
-                failure: {
-                    ZStack {
-                        Rectangle().fill(.quaternary)
-                        Image(systemName: "gamecontroller")
-                            .font(.title)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            )
-            .aspectRatio(460.0 / 215.0, contentMode: .fit)
-            .clipShape(
-                UnevenRoundedRectangle(
-                    topLeadingRadius: 8,
-                    bottomLeadingRadius: 0,
-                    bottomTrailingRadius: 0,
-                    topTrailingRadius: 8
-                )
-            )
-
+            coverArt
             VStack(alignment: .leading, spacing: 6) {
                 Text(verbatim: recipe.title)
                     .font(.headline)
@@ -145,6 +134,14 @@ private struct RecipeCard: View {
                         .padding(.vertical, 2)
                         .background(.quaternary, in: Capsule())
                         .foregroundStyle(.secondary)
+                    if installed {
+                        Text("Installed")
+                            .font(.caption2.weight(.medium))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.green.opacity(0.18), in: Capsule())
+                            .foregroundStyle(Color.green)
+                    }
                 }
             }
             .padding(12)
@@ -153,7 +150,43 @@ private struct RecipeCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(installed ? Color.green.opacity(0.4) : Color.clear, lineWidth: 1)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(.separator, lineWidth: 0.5)
+        )
+    }
+
+    private var coverArt: some View {
+        CachedAsyncImage(
+            url: recipe.iconURL,
+            success: { image in
+                image.resizable().aspectRatio(contentMode: .fill)
+            },
+            placeholder: {
+                ZStack {
+                    Rectangle().fill(.quaternary)
+                    ProgressView().controlSize(.small)
+                }
+            },
+            failure: {
+                ZStack {
+                    Rectangle().fill(.quaternary)
+                    Image(systemName: "gamecontroller")
+                        .font(.title)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        )
+        .aspectRatio(460.0 / 215.0, contentMode: .fit)
+        .clipShape(
+            UnevenRoundedRectangle(
+                topLeadingRadius: 8,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 0,
+                topTrailingRadius: 8
+            )
         )
     }
 }

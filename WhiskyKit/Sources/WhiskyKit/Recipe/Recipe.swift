@@ -66,6 +66,19 @@ public struct Recipe: Codable, Hashable, Sendable, Identifiable {
     /// Preferred renderer backend. See `RecipeRenderer`.
     public let renderer: RecipeRenderer
 
+    /// How the game's content is obtained. Drives which installer flow
+    /// the UI presents when the user clicks "Install" on a Library card.
+    /// Optional for backward compatibility with pre-v0.7 recipes that
+    /// only carried configuration, not install plumbing.
+    public let installer: InstallerKind?
+
+    /// Relative path inside the bottle's drive_c where the main
+    /// executable lives after installation, e.g.
+    /// `Program Files (x86)/Steam/steamapps/common/Black Myth Wukong/b1/Binaries/Win64/b1-Win64-Shipping.exe`.
+    /// Used as a hint in the "pick main .exe" dialog after install. Nil
+    /// means "no canonical path known; ask the user".
+    public let mainExe: String?
+
     /// Optional list of winetricks verbs required before first launch.
     ///
     /// Examples: `vcrun2022`, `dotnet48`, `corefonts`.
@@ -96,6 +109,8 @@ public struct Recipe: Codable, Hashable, Sendable, Identifiable {
         dxVersion: DXVersion,
         minMacOS: String,
         renderer: RecipeRenderer,
+        installer: InstallerKind? = nil,
+        mainExe: String? = nil,
         winetricks: [String] = [],
         env: [String: String] = [:],
         registry: [RegistryEntry] = [],
@@ -109,6 +124,8 @@ public struct Recipe: Codable, Hashable, Sendable, Identifiable {
         self.dxVersion = dxVersion
         self.minMacOS = minMacOS
         self.renderer = renderer
+        self.installer = installer
+        self.mainExe = mainExe
         self.winetricks = winetricks
         self.env = env
         self.registry = registry
@@ -126,6 +143,8 @@ public struct Recipe: Codable, Hashable, Sendable, Identifiable {
         case dxVersion = "dx_version"
         case minMacOS = "min_macos"
         case renderer
+        case installer
+        case mainExe = "main_exe"
         case winetricks
         case env
         case registry
@@ -142,6 +161,8 @@ public struct Recipe: Codable, Hashable, Sendable, Identifiable {
         self.dxVersion = try container.decode(DXVersion.self, forKey: .dxVersion)
         self.minMacOS = try container.decode(String.self, forKey: .minMacOS)
         self.renderer = try container.decode(RecipeRenderer.self, forKey: .renderer)
+        self.installer = try container.decodeIfPresent(InstallerKind.self, forKey: .installer)
+        self.mainExe = try container.decodeIfPresent(String.self, forKey: .mainExe)
         self.winetricks = try container.decodeIfPresent([String].self, forKey: .winetricks) ?? []
         self.env = try container.decodeIfPresent([String: String].self, forKey: .env) ?? [:]
         self.registry = try container.decodeIfPresent([RegistryEntry].self, forKey: .registry) ?? []
@@ -163,6 +184,19 @@ public enum RecipeRenderer: String, Codable, CaseIterable, Sendable {
     case dxvk
     /// Wine's built-in DirectX → OpenGL translation. Last resort.
     case wined3d
+}
+
+/// How the user is expected to acquire the game's content after
+/// MacBottle creates a bottle for them.
+public enum InstallerKind: String, Codable, CaseIterable, Sendable {
+    /// Game is on Steam and requires the Windows Steam client. MacBottle
+    /// can auto-download SteamSetup.exe from Steam's CDN.
+    case steam
+    /// Game ships as a GOG offline installer. User picks the .exe.
+    case gog
+    /// Any other installer (a setup.exe, an MSI, a retail disc rip).
+    /// User picks the file themselves.
+    case custom
 }
 
 /// Compatibility tier mirrors ProtonDB's five-level scale.
