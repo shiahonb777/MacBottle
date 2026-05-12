@@ -230,20 +230,41 @@ final class GameInstaller: ObservableObject {
         Logger.wineKit.info("GameInstaller: applied recipe \(self.recipe.id) to bottle \(bottle.url.lastPathComponent)")
     }
 
+    // swiftlint:disable:next function_body_length
     private func installCJKFontSubstitutions(bottle: Bottle) async {
-        // Wine font substitution: when an app requests a font that
-        // doesn't exist, Wine checks this registry key for a replacement.
+        // Step 1: Copy the bundled WenQuanYi Micro Hei font (open-source,
+        // GPL+FE, ~5 MB) into the bottle's Windows Fonts directory. This
+        // font covers all CJK glyphs and is picked up by both GDI apps
+        // (like NSIS installers) and Chromium-based apps (like Steam).
+        let fontsDir = bottle.url
+            .appending(path: "drive_c")
+            .appending(path: "windows")
+            .appending(path: "Fonts")
+        let fileManager = FileManager.default
+        if !fileManager.fileExists(atPath: fontsDir.path(percentEncoded: false)) {
+            try? fileManager.createDirectory(at: fontsDir, withIntermediateDirectories: true)
+        }
+
+        if let bundledFont = Bundle.main.url(forResource: "wqy-microhei", withExtension: "ttc") {
+            let dest = fontsDir.appending(path: "wqy-microhei.ttc")
+            if !fileManager.fileExists(atPath: dest.path(percentEncoded: false)) {
+                try? fileManager.copyItem(at: bundledFont, to: dest)
+            }
+        }
+
+        // Step 2: Register font substitutions so Windows apps that
+        // request SimSun / Microsoft YaHei get WenQuanYi Micro Hei.
         let substitutions: [(windows: String, replacement: String)] = [
-            ("SimSun", "STHeiti"),
-            ("NSimSun", "STHeiti"),
-            ("Microsoft YaHei", "STHeiti"),
-            ("Microsoft YaHei UI", "STHeiti"),
-            ("宋体", "STHeiti"),
-            ("新宋体", "STHeiti"),
-            ("MS UI Gothic", "Hiragino Sans"),
-            ("MS Gothic", "Hiragino Sans"),
-            ("Gulim", "Apple SD Gothic Neo"),
-            ("Batang", "AppleMyungjo")
+            ("SimSun", "WenQuanYi Micro Hei"),
+            ("NSimSun", "WenQuanYi Micro Hei"),
+            ("Microsoft YaHei", "WenQuanYi Micro Hei"),
+            ("Microsoft YaHei UI", "WenQuanYi Micro Hei"),
+            ("宋体", "WenQuanYi Micro Hei"),
+            ("新宋体", "WenQuanYi Micro Hei"),
+            ("MS UI Gothic", "WenQuanYi Micro Hei"),
+            ("MS Gothic", "WenQuanYi Micro Hei"),
+            ("Gulim", "WenQuanYi Micro Hei"),
+            ("Batang", "WenQuanYi Micro Hei")
         ]
 
         for sub in substitutions {
@@ -256,13 +277,24 @@ final class GameInstaller: ObservableObject {
                     bottle: bottle
                 )
             } catch {
-                // Non-fatal: some substitutions may fail if Wine hasn't
-                // fully initialized the registry yet. The most important
-                // ones (SimSun → STHeiti) usually succeed.
                 Logger.wineKit.debug(
                     "GameInstaller: font sub \(sub.windows) failed: \(error.localizedDescription)"
                 )
             }
+        }
+
+        // Step 3: Register the font file itself in the Windows Fonts
+        // registry key so apps that enumerate installed fonts find it.
+        do {
+            try await Wine.runWine(
+                ["reg", "add",
+                 #"HKLM\Software\Microsoft\Windows NT\CurrentVersion\Fonts"#,
+                 "-v", "WenQuanYi Micro Hei (TrueType)",
+                 "-t", "REG_SZ", "-d", "wqy-microhei.ttc", "-f"],
+                bottle: bottle
+            )
+        } catch {
+            Logger.wineKit.debug("GameInstaller: font registration failed: \(error.localizedDescription)")
         }
     }
 
