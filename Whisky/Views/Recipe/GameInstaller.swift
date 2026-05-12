@@ -87,8 +87,11 @@ final class GameInstaller: ObservableObject {
         let url = bottleVM.createNewBottle(
             bottleName: recipe.title,
             winVersion: .win10,
-            bottleURL: bottleVM.bottlesList.paths.first
-                ?? bottleVM.bottlesList.defaultBottleDir
+            // Always create new bottles under the default parent. Using
+            // an existing bottle path as the parent (which was happening
+            // when we took `paths.first`) produced nested bottles like
+            // `Bottles/<existing-UUID>/<new-UUID>`.
+            bottleURL: BottleData.defaultBottleDir
         )
         bottleURL = url
 
@@ -333,18 +336,6 @@ final class GameInstaller: ObservableObject {
         let relative = String(absolute.dropFirst(driveC.count))
             .replacingOccurrences(of: "/", with: "\\")
         return "C:" + relative
-    }
-}
-
-// MARK: - Convenience on BottleData for default location
-
-private extension BottleData {
-    /// Fallback bottle parent directory when the user has no configured
-    /// paths yet — mirrors Whisky's own default.
-    var defaultBottleDir: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appending(path: Bundle.whiskyBundleIdentifier)
-            .appending(path: "Bottles")
     }
 }
 
