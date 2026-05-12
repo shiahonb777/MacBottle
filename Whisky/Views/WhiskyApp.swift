@@ -28,7 +28,14 @@ struct WhiskyApp: App {
     private let updaterController: SPUStandardUpdaterController
 
     init() {
-        updaterController = SPUStandardUpdaterController(startingUpdater: true,
+        // MacBottle: keep Sparkle wired in so we can re-enable it once
+        // we have a real appcast and EdDSA key pair, but do not start
+        // the updater at launch. A running updater with an unconfigured
+        // feed/public key causes "Unable to Check For Updates" dialogs
+        // during development. Re-enable by flipping the flag back to
+        // true once `SUFeedURL` and `SUPublicEDKey` in Info.plist are
+        // populated with real values.
+        updaterController = SPUStandardUpdaterController(startingUpdater: false,
                                                          updaterDelegate: nil,
                                                          userDriverDelegate: nil)
     }

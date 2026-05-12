@@ -53,10 +53,8 @@
 			</array>
 		</dict>
 	</array>
-	<key>SUFeedURL</key>
-	<string>https://updates.macbottle.app/appcast.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>MACBOTTLE_REPLACE_WITH_REAL_EDDSA_PUBLIC_KEY_BEFORE_RELEASE</string>
+	<key>SUEnableAutomaticChecks</key>
+	<false/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
